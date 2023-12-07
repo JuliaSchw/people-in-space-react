@@ -5,6 +5,8 @@ import "./components/button/button.css";
 function App() {
   const [peopleInSpace, setPeopleInSpace] = useState(0);
   const [namesInSpace, setNamesInSpace] = useState([]);
+  const [craftsInSpace, setCraftsInSpace] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState("ALL");
 
   const fetchData = async () => {
     const response = await fetch("http://api.open-notify.org/astros.json");
@@ -15,17 +17,35 @@ function App() {
     const names = data.people.map((person) => person.name);
     setNamesInSpace(names);
 
-    const craft = data.people.map((person) => person.craft);
-    console.log(craft);
+    const crafts = data.people.map((person) => person.craft);
+    setCraftsInSpace(crafts);
   };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const handleButtonClick = (buttonId) => {
-    console.log(` ${buttonId} clicked`);
+  const handleButtonClick = (filter) => {
+    setCurrentFilter(filter);
   };
+
+  const filteredNames =
+    currentFilter === "ALL"
+      ? namesInSpace
+      : namesInSpace.filter((name, index) => {
+          console.log(index); // Log index here
+          return craftsInSpace[index] === currentFilter;
+        });
+
+  //         Explanation:
+
+  // The code starts with a condition: currentFilter === "ALL". This checks if the current filter is set to "ALL".
+  // If the condition is true, it assigns the value of namesInSpace directly to filteredNames. This means if the filter is "ALL," you want to display all names.
+  // If the condition is false, it means the filter is not "ALL." In this case, it uses the filter method on the namesInSpace array.
+  // The filter method is used to create a new array with all elements that pass the test implemented by the provided function.
+  // The callback function (name, index) => {...} is called for each element in namesInSpace. The function receives the name of the person and its index in the array.
+  // Inside the callback function, there's a console.log(index); statement logging the index.
+  // The return craftsInSpace[index] === currentFilter; line checks if the craft at the current index in craftsInSpace is equal to the current filter value. If it is, the person's name is included in the filtered array.
 
   return (
     <div className="App">
@@ -55,7 +75,7 @@ function App() {
           </button>
         </div>
         <ul>
-          {namesInSpace.map((name, index) => (
+          {filteredNames.map((name, index) => (
             <li key={index}>{name}</li>
           ))}
         </ul>
